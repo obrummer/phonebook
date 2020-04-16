@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static('build'));
 
-morgan.token('body', function(req, res) {
+morgan.token('body', function(req) {
   return JSON.stringify(req.body);
 });
 
@@ -48,7 +48,7 @@ app.get('/api/persons/:id', (req, res, next) => {
     .catch(error => next(error));
 });
 
-app.post('/api/persons', (req, res, next) => {
+app.post('/api/persons', (req, res) => {
   const body = req.body;
 
   if (!body.name) {
@@ -95,7 +95,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end();
     })
     .catch(error => next(error));
@@ -104,7 +104,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
 const errorHandler = (error, req, res, next) => {
   console.error(error);
 
-  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return res.status(400).send({ error: 'malformatted id' });
   }
   if (error.name === 'ValidatorError') {
